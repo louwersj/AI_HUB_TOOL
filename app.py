@@ -60,25 +60,44 @@ def report_details():
         # Prepare OpenAI API request
         api_key = os.getenv("OPENAI_API_KEY")
         historical_data = DataLoader.load_historical_data()
-        question = formulate_question(project_details, cost_info, historical_data)
 
-        messages = [
-            {"role": "system", "content": "You are a QC and architect."},
-            {"role": "user", "content": question},
-            {"role": "assistant", "content": documents_content}
+        # Split data into chunks
+        chunks = []
+        chunk_size = 2000  # Approximate token limit per chunk
+        all_data = [
+            {"type": "historical_data", "content": historical_data},
+            {"type": "documents_content", "content": documents_content},
+            {"type": "cost_info", "content": cost_info},
+            {"type": "project_details", "content": project_details},
         ]
 
-        # Get AI response
-        response = chat_completion(messages, api_key)
+        for data_entry in all_data:
+            content = str(data_entry["content"])
+            for i in range(0, len(content), chunk_size):
+                chunks.append({"type": data_entry["type"], "content": content[i:i + chunk_size]})
+
+        # Process each chunk and collect responses
+        aggregated_responses = {}
+        for i, chunk in enumerate(chunks):
+            question = f"Process the following {chunk['type']} chunk:\n{chunk['content']}"
+            messages = [
+                {"role": "system", "content": "You are an expert architect and cost estimator."},
+                {"role": "user", "content": question}
+            ]
+            response = chat_completion(messages, api_key)
+            if chunk["type"] not in aggregated_responses:
+                aggregated_responses[chunk["type"]] = []
+            aggregated_responses[chunk["type"]].append(response)
 
         # Clean up uploaded files
         for file_path in pdf_paths:
             os.remove(file_path)
 
-        return jsonify({"response": response})
+        return jsonify({"response": aggregated_responses})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 if __name__ == "__main__":
