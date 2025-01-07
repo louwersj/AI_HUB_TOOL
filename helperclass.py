@@ -1,4 +1,4 @@
-from langchain_community.document_loaders import PyPDFLoader
+from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
 from langchain.chat_models import ChatOpenAI
@@ -43,11 +43,13 @@ class DataLoader:
                 document = loader.load()
                 texts = text_splitter.split_documents(document)
                 chain = load_summarize_chain(llm, chain_type="map_reduce")
-                summary = chain.run(texts)
+                summary = chain.invoke(texts)
                 documents_content += summary + "\n"
             except Exception as e:
                 print(f"Error processing PDF {pdf}: {e}")
         return documents_content
+
+# Remaining functions remain unchanged
 
 def extract_project_info(payload):
     project_info = {}
