@@ -51,26 +51,11 @@ def report_details():
         question = formulate_question(project_details, cost_info, historical_data=historical_data)
 
         system_msg = "You are a QC and architect."
-        system_tokens = count_tokens(system_msg)
-        user_tokens = count_tokens(question)
-        assistant_tokens = count_tokens(documents_content)
-        total_tokens = system_tokens + user_tokens + assistant_tokens
-
-        print(f"Total tokens: {total_tokens}")
-
-        MAX_TOKENS = 7000
-        if total_tokens > MAX_TOKENS:
-            ratio = (MAX_TOKENS - system_tokens) / total_tokens
-            user_tokens_allowed = int(user_tokens * ratio)
-            assistant_tokens_allowed = int(assistant_tokens * ratio)
-            encoding = tiktoken.encoding_for_model('gpt-4')
-            question = encoding.decode(encoding.encode(question)[:user_tokens_allowed])
-            documents_content = encoding.decode(encoding.encode(documents_content)[:assistant_tokens_allowed])
+        user_msg = question + "\n" + documents_content
 
         messages = [
             {"role": "system", "content": system_msg},
-            {"role": "user", "content": question},
-            {"role": "assistant", "content": documents_content}
+            {"role": "user", "content": user_msg}
         ]
 
         response = chat_completion(messages, api_key)
