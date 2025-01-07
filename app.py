@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from helperclass import DataLoader, chat_completion, extract_project_info, extract_cost_info, formulate_question
+from helperclass import DataLoader, chat_completion, extract_project_info, extract_cost_info, formulate_question, count_tokens
 import os
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
@@ -42,16 +42,33 @@ def report_details():
         project_info_payload = data.get('project_info_payload', [])
         cost_info_payload = data.get('cost_info_payload', [])
 
-        documents_content = DataLoader.load_pdf_contents(pdf_paths)
         api_key = os.getenv("OPENAI_API_KEY")
+        documents_content = DataLoader.load_pdf_contents(pdf_paths, api_key)
 
         project_details = extract_project_info(project_info_payload)
         cost_info = extract_cost_info(cost_info_payload)
         historical_data = DataLoader.load_historical_data()
         question = formulate_question(project_details, cost_info, historical_data=historical_data)
 
+        system_msg = "You are a QC and architect."
+        system_tokens = count_tokens(system_msg)
+        user_tokens = count_tokens(question)
+        assistant_tokens = count_tokens(documents_content)
+        total_tokens = system_tokens + user_tokens + assistant_tokens
+
+        print(f"Total tokens: {total_tokens}")
+
+        MAX_TOKENS = 7000
+        if total_tokens > MAX_TOKENS:
+            ratio = (MAX_TOKENS - system_tokens) / total_tokens
+            user_tokens_allowed = int(user_tokens * ratio)
+            assistant_tokens_allowed = int(assistant_tokens * ratio)
+            encoding = tiktoken.encoding_for_model('gpt-4')
+            question = encoding.decode(encoding.encode(question)[:user_tokens_allowed])
+            documents_content = encoding.decode(encoding.encode(documents_content)[:assistant_tokens_allowed])
+
         messages = [
-            {"role": "system", "content": "You are a QC and architect."},
+            {"role": "system", "content": system_msg},
             {"role": "user", "content": question},
             {"role": "assistant", "content": documents_content}
         ]
