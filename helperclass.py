@@ -7,14 +7,11 @@ import os
 class DataLoader:
     @staticmethod
     def load_historical_data():
-        """
-        Loads and processes historical data from a CSV file.
-        Returns:
-            dict: Processed historical data categorized by work type and sub-category.
-        """
         csv_path = os.path.join(os.path.dirname(__file__), 'Final_Work_Categories_and_Price_Analysis.csv')
+        if not os.path.exists(csv_path):
+            print(f"CSV file not found at {csv_path}")
+            return {}
         df = pd.read_csv(csv_path)
-
         historical_data = {}
         for _, row in df.iterrows():
             category = row['category']
@@ -22,36 +19,25 @@ class DataLoader:
             unit = row['Unit']
             avg_price = row['average_price']
             range_price = row['range_price']
-
             if category not in historical_data:
                 historical_data[category] = []
-
             historical_data[category].append({
                 'sub_category': sub_category,
                 'unit': unit,
                 'avg_price': avg_price,
                 'range_price': range_price
             })
-
         return historical_data
 
     @staticmethod
     def load_pdf_contents(pdf_paths):
-        """
-        Loads contents from a list of PDF files.
-
-        Args:
-            pdf_paths (list): List of paths to PDF files.
-
-        Returns:
-            str: Concatenated content of all PDF files.
-        """
         documents_content = ""
         for pdf in pdf_paths:
             try:
                 loader = PyPDFLoader(pdf)
                 document = loader.load()
-                documents_content += "\n".join(page.page_content for page in document) + "\n"
+                content = "\n".join(page.page_content for page in document)
+                documents_content += content + "\n"
             except Exception as e:
                 print(f"Error loading PDF {pdf}: {e}")
         return documents_content
