@@ -30,7 +30,6 @@ jsonpointer==3.0.0
 langchain==0.3.14
 langchain-community==0.3.7
 langchain-core==0.3.29
-langchain-openai==0.2.8
 langchain-text-splitters==0.3.4
 langsmith==0.1.143
 MarkupSafe==3.0.2
