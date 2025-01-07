@@ -5,3 +5,5 @@ openai==0.27.0
 pandas
 pypdf
 python-dotenv
+langchain
+tiktoken
