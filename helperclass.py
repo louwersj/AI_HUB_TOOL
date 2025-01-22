@@ -134,50 +134,75 @@ def formulate_question(project_details, cost_info, historical_data):
                                 f"  Range Price: {item['range_price']}\n")
 
     question = f"""
-   Project Overview:
-You are provided with the following project details:
-    Project Details: {project_details}
-    Cost Information: {cost_info}
-    Historical Data: {historical_info}
-Your task is to analyze the provided architectural drawings and documents, following these specific instructions:
-1. Elevations (Files Containing Elevations)
-    Identify and list the materials used for each elevation (North, South, East, and West).
-    Use the labels beside each material name to ensure accuracy.
-2. Floor Plan (Files Containing Floor Plans)
-    Locate the floor measurements on the drawing.
-    Use the label beside "scale" to determine the real-life to image scale ratio, followed by the paper size.
-    Calculate the area of each room, the total area of the floor plan, and identify any new construction, particularly those indicated by blue-colored walls.
-3. Roof Plan (Files Containing Roof Plans)
-    Detect any extensions (represented as side boxes covered in stripes) and calculate their area.
-4. Feasibility Estimate (Files Containing Feasibility Estimate)
-    Based on the project's cost details and historical data:
-        AI-Driven Costing: If a subcategory mentions using AI, estimate the cost of the required work based on the provided drawings.
-        Generate a detailed, itemized cost breakdown for the new project, considering average prices from past projects.
-        The breakdown should cover all major categories, including but not limited to:
-            Demolition
-            Substructure
-            Superstructure
-            Roof
-            External Windows and Doors
-            Partitions
-            Electrical
-            Mechanical
-            Preliminaries
-Cost Calculations Methodology:
-    Quantification: Use construction drawings, specifications, and BIM (Building Information Modeling) software to quantify materials and labor.
-    Unit Rates: Apply unit rates (cost per unit of measure) from cost databases or historical data.
-    Summation: Sum the costs for each category (materials, labor, equipment) to arrive at the total cost.
-    Contingencies: Include a percentage for contingencies to cover unforeseen costs.
-    Overheads and Profits: Add a percentage for overheads and profits.
-Final Output:
-Your final response should include the following sections:
-    Elevations: Detail the materials used for North, South, East, and West elevations.
-    Floor Plan: Provide the scale, area calculations for each room, total area, and details of any new construction (highlighted in blue).
-    Roof Plan: Detail any extensions identified in the roof plan.
-    Feasibility Estimate: Provide a cost estimate summary, including a breakdown of costs for demolition, substructure, superstructure, etc., and a total excluding VAT.
-Important Notes:
-    Do not use external sources; base your analysis solely on the provided information.
-    Follow the project details and cost Information carefully as they outline the scope and specifics of the work to be done.
+  Project Overview:
+        You are tasked with analyzing the provided architectural drawings and feasibility documents to deliver a detailed project assessment. The following project details are provided:
+            - Project Details: {project_details}
+            - Cost Information: {cost_info}
+            - Historical Data: {historical_info}
+        
+        Analysis Instructions:
+        1. Elevations (Files Containing Elevation Drawings):
+            - Objective: Identify and list materials for each elevation (North, South, East, and West).
+            - Methodology:
+                1. Use labels and legends within the drawings to determine materials (e.g., brickwork, cladding).
+                2. Include the material types and finishes for each elevation.
+        
+        2. Floor Plan (Files Containing Floor Plans):
+            - Objective: Calculate room areas, total floor area, and identify new construction elements.
+            - Methodology:
+                1. Use the labeled scale ratio and paper size to convert drawing measurements into real-world dimensions.
+                2. Measure and calculate the area of each room and the total floor area.
+                3. Identify areas marked for work to be done  using the provided PDF :
+                    - Calculate the area of each marked region based on the scale and associate it with the corresponding label.
+                    - Areas marked with tags (e.g., "allowance for demolition") must be quantified using their highlighted regions, adjusted for the scale, and matched to the corresponding costs in the feasibility estimate.
+
+        
+        3. Roof Plan (Files Containing Roof Drawings):
+            - Objective: Identify and measure extensions or modifications.
+            - Methodology:
+                1. Look for extensions (commonly shown as striped side boxes) and calculate their areas using the scale.
+        
+        4. Feasibility Estimate (Files Containing Cost Data):
+            - Objective: Provide an itemized cost breakdown for the project.
+            - Methodology:
+                1. AI-Driven Costing: For subcategories marked for AI-based costing, generate cost estimates based on the drawings and historical data.
+                2. Itemized Breakdown: Include the following major categories with detailed cost estimates:
+                    - Demolition
+                    - Substructure
+                    - Superstructure
+                    - Roof
+                    - External Windows and Doors
+                    - Partitions
+                    - Joinery
+                    - Electrical
+                    - Mechanical
+                    - Decoration
+                    - Preliminaries
+                3. Cost Calculations:
+                    - Quantification: Use the drawings and specifications to quantify materials and labor, incorporating BIM (Building Information Modeling) or manual methods.
+                    - Unit Rates: Apply rates from cost databases or historical project data.
+                    - Summation: Aggregate costs across materials, labor, and equipment to calculate category totals.
+        
+        
+        Final Output:
+        Your final response should include the following structured sections:
+            1. Elevations:
+                - List materials for each elevation (North, South, East, and West).
+                - Specify material types, finishes, and any observations from the drawings.
+            2. Floor Plan:
+                - Provide the scale used.
+                - Calculate and report the area of each room and the total floor area.
+                - Highlight details of new construction areas (e.g., blue-marked walls).
+            3. Roof Plan:
+                - Identify and calculate areas of extensions or modifications.
+            4. Feasibility Estimate:
+                - Include a detailed, itemized cost breakdown for the categories listed.
+                - Provide the total project cost, excluding VAT.
+        
+        Important Notes:
+        - Use only the information provided in the drawings and documents; external references are not allowed.
+        - Ensure alignment with the project scope and provided cost details.
+        - Be precise and methodical in calculations to maintain accuracy.
     """
     return question
 
